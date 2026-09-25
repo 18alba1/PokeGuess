@@ -11,20 +11,23 @@ public class GameService {
 
     private final PokemonService pokemonService;
     private final ClueService clueService;
+    private final DailyChallengeService dailyChallengeService;
 
     private GameState currentGame;
 
     public GameService(
-            PokemonService pokemonService,
-            ClueService clueService) {
+        PokemonService pokemonService,
+        ClueService clueService,
+        DailyChallengeService dailyChallengeService) {
 
         this.pokemonService = pokemonService;
         this.clueService = clueService;
+        this.dailyChallengeService = dailyChallengeService;
     }
 
     public GameStateResponse startGame() {
 
-        Pokemon target = pokemonService.getPokemon("pikachu");
+        Pokemon target = dailyChallengeService.getTodaysPokemon();
 
         currentGame = new GameState(target);
 
