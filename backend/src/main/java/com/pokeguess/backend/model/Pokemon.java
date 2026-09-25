@@ -9,6 +9,7 @@ public class Pokemon {
     private List<String> types;
     private String generation;
     private String habitat;
+    private int evolutionChainId;
 
     public String getName(){
         return name;
@@ -56,5 +57,13 @@ public class Pokemon {
 
     public void setHabitat(String habitat){
         this.habitat = habitat;
+    }
+
+    public int getEvolutionChainId() {
+        return evolutionChainId;
+    }
+
+    public void setEvolutionChainId(int evolutionChainId) {
+        this.evolutionChainId = evolutionChainId;
     }
 }

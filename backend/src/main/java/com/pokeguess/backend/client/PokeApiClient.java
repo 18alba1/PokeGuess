@@ -1,7 +1,10 @@
 package com.pokeguess.backend.client;
 
+import com.pokeguess.backend.dto.PokeApiPokemonResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import com.pokeguess.backend.dto.PokeApiSpeciesResponse;
+import com.pokeguess.backend.dto.PokeApiEvolutionChainResponse;
 
 @Component
 public class PokeApiClient {
@@ -14,10 +17,24 @@ public class PokeApiClient {
                 .build();
     }
 
-    public String getPokemon(String name) {
+    public PokeApiPokemonResponse getPokemon(String name) {
         return restClient.get()
                 .uri("/pokemon/{name}", name)
                 .retrieve()
-                .body(String.class);
+                .body(PokeApiPokemonResponse.class);
+    }
+
+    public PokeApiSpeciesResponse getSpecies(String name) {
+        return restClient.get()
+                .uri("/pokemon-species/{name}", name)
+                .retrieve()
+                .body(PokeApiSpeciesResponse.class);
+    }
+
+    public PokeApiEvolutionChainResponse getEvolutionChain(int id) {
+        return restClient.get()
+                .uri("/evolution-chain/{id}", id)
+                .retrieve()
+                .body(PokeApiEvolutionChainResponse.class);
     }
 }
