@@ -12,5 +12,30 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
 
+  backend:
+    build:
+      context: ./backend
+    container_name: pokeguess-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pokeguess
+      SPRING_DATASOURCE_USERNAME: pokeguess
+      SPRING_DATASOURCE_PASSWORD: pokeguess
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: pokeguess-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:

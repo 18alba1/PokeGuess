@@ -32,48 +32,9 @@ jobs:
         working-directory: backend
         run: chmod +x mvnw
 
-      - name: Check Docker
-        run: docker version
-
       - name: Run backend tests
-        id: backend-tests
-        continue-on-error: true
         working-directory: backend
-        run: ./mvnw -B -ntp clean test -e
-
-      - name: Print Surefire reports
-        if: always()
-        working-directory: backend
-        run: |
-          echo "========================================"
-          echo "SUREFIRE TEST REPORTS"
-          echo "========================================"
-
-          if compgen -G "target/surefire-reports/*.txt" > /dev/null; then
-            for file in target/surefire-reports/*.txt; do
-              echo ""
-              echo "========================================"
-              echo "FILE: $file"
-              echo "========================================"
-              cat "$file"
-            done
-          else
-            echo "No Surefire .txt reports were found."
-            echo "Listing target directory:"
-            find target -maxdepth 3 -type f 2>/dev/null || true
-          fi
-
-      - name: Upload Surefire reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-surefire-reports
-          path: backend/target/surefire-reports/
-          if-no-files-found: warn
-
-      - name: Fail if backend tests failed
-        if: steps.backend-tests.outcome == 'failure'
-        run: exit 1
+        run: ./mvnw -B -ntp clean test
 
 
   frontend-build:
