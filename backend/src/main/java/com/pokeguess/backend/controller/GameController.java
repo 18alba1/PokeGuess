@@ -4,6 +4,9 @@ import com.pokeguess.backend.model.GameStateResponse;
 import com.pokeguess.backend.model.GuessResult;
 import com.pokeguess.backend.model.Pokemon;
 import com.pokeguess.backend.service.GameService;
+
+import java.util.UUID;
+
 import org.springframework.web.bind.annotation.*;
 
 import com.pokeguess.backend.service.DailyChallengeService;
@@ -21,18 +24,23 @@ public class GameController {
     }
 
     @PostMapping("/start")
-    public GameStateResponse startGame() {
+    public UUID startGame() {
         return gameService.startGame();
     }
 
     @GetMapping("/state")
-    public GameStateResponse getGameState() {
-        return gameService.getGameState();
+    public GameStateResponse getGameState(
+            @RequestParam UUID sessionId) {
+
+        return gameService.getGameState(sessionId);
     }
 
     @PostMapping("/guess")
-    public GuessResult makeGuess(@RequestParam String name) {
-        return gameService.makeGuess(name);
+    public GuessResult makeGuess(
+            @RequestParam UUID sessionId,
+            @RequestParam String name) {
+
+        return gameService.makeGuess(sessionId, name);
     }
 
     @GetMapping("/today")

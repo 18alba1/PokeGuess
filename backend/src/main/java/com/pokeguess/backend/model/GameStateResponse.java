@@ -1,5 +1,8 @@
 package com.pokeguess.backend.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameStateResponse {
 
     private int attempts;
@@ -8,6 +11,7 @@ public class GameStateResponse {
     private boolean won;
     private boolean gameOver;
     private String target;
+    private List<GuessResult> guesses = new ArrayList<>();
 
     public int getAttempts() {
         return attempts;
@@ -55,5 +59,13 @@ public class GameStateResponse {
 
     public void setTarget(String target) {
         this.target = target;
+    }
+
+    public List<GuessResult> getGuesses() {
+        return guesses;
+    }
+
+    public void setGuesses(List<GuessResult> guesses) {
+        this.guesses = guesses;
     }
 }

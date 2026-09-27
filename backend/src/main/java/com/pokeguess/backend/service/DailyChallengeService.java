@@ -28,26 +28,11 @@ public class DailyChallengeService {
 
     public Pokemon getTodaysPokemon() {
 
-        LocalDate today = LocalDate.now();
+        DailyChallenge challenge = getTodaysChallenge();
 
-        Optional<DailyChallenge> existingChallenge =
-                dailyChallengeRepository.findByDate(today);
-
-        if (existingChallenge.isPresent()) {
-            int pokemonId = existingChallenge.get().getPokemonId();
-
-            return pokemonService.getPokemon(String.valueOf(pokemonId));
-        }
-
-        int pokemonId = calculatePokemonId(today);
-
-        DailyChallenge challenge = new DailyChallenge();
-        challenge.setDate(today);
-        challenge.setPokemonId(pokemonId);
-
-        dailyChallengeRepository.save(challenge);
-
-        return pokemonService.getPokemon(String.valueOf(pokemonId));
+        return pokemonService.getPokemon(
+                String.valueOf(challenge.getPokemonId())
+        );
     }
 
     private int calculatePokemonId(LocalDate date) {
@@ -59,5 +44,25 @@ public class DailyChallengeService {
                 daysSinceStart,
                 SUPPORTED_POKEMON_COUNT
         ) + 1;
+    }
+
+    public DailyChallenge getTodaysChallenge() {
+
+        LocalDate today = LocalDate.now();
+
+        Optional<DailyChallenge> existingChallenge =
+                dailyChallengeRepository.findByDate(today);
+
+        if (existingChallenge.isPresent()) {
+            return existingChallenge.get();
+        }
+
+        int pokemonId = calculatePokemonId(today);
+
+        DailyChallenge challenge = new DailyChallenge();
+        challenge.setDate(today);
+        challenge.setPokemonId(pokemonId);
+
+        return dailyChallengeRepository.save(challenge);
     }
 }

@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: pokeguess-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pokeguess
+      POSTGRES_USER: pokeguess
+      POSTGRES_PASSWORD: pokeguess
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:
