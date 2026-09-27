@@ -4,6 +4,7 @@ import com.pokeguess.backend.entity.DailyChallenge;
 import com.pokeguess.backend.model.Pokemon;
 import com.pokeguess.backend.repository.DailyChallengeRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -63,6 +64,14 @@ public class DailyChallengeService {
         challenge.setDate(today);
         challenge.setPokemonId(pokemonId);
 
-        return dailyChallengeRepository.save(challenge);
+        try {
+            return dailyChallengeRepository.saveAndFlush(challenge);
+        } catch (DataIntegrityViolationException e) {
+            return dailyChallengeRepository.findByDate(today)
+                    .orElseThrow(() ->
+                            new IllegalStateException(
+                                    "Daily challenge could not be created."
+                            ));
+        }
     }
 }
