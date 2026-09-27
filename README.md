@@ -5,7 +5,7 @@ PokéGuess is a fullstack Pokémon guessing game. The goal is to guess the Poké
 The project was built primarily as a **fullstack/software engineering portfolio project**, with a focus on Java/Spring Boot, React/TypeScript, PostgreSQL, Docker, automated testing, CI/CD, and cloud deployment.
 
 ## 🎥 System Demo
-
+https://github.com/user-attachments/assets/cebc8ed3-fc98-4fcf-8a7e-16667c607308
 
 ---
 
