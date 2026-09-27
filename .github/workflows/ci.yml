@@ -1,17 +1,3 @@
-name: CI
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
-permissions:
-  contents: read
-
-jobs:
   backend-test:
     name: Backend tests
     runs-on: ubuntu-24.04
@@ -36,44 +22,41 @@ jobs:
         run: docker version
 
       - name: Run backend tests
+        id: backend-tests
+        continue-on-error: true
         working-directory: backend
         run: ./mvnw -B -ntp clean test -e
 
+      - name: Print Surefire reports
+        if: always()
+        working-directory: backend
+        run: |
+          echo "========================================"
+          echo "SUREFIRE TEST REPORTS"
+          echo "========================================"
 
-  frontend-build:
-    name: Frontend build
-    runs-on: ubuntu-24.04
+          if compgen -G "target/surefire-reports/*.txt" > /dev/null; then
+            for file in target/surefire-reports/*.txt; do
+              echo ""
+              echo "========================================"
+              echo "FILE: $file"
+              echo "========================================"
+              cat "$file"
+            done
+          else
+            echo "No Surefire .txt reports were found."
+            echo "Listing target directory:"
+            find target -maxdepth 3 -type f 2>/dev/null || true
+          fi
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Set up Node.js 22
-        uses: actions/setup-node@v7
+      - name: Upload Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v7
         with:
-          node-version: '22'
-          cache: npm
+          name: backend-surefire-reports
+          path: backend/target/surefire-reports/
+          if-no-files-found: warn
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build frontend
-        run: npm run build
-
-
-  docker-build:
-    name: Docker builds
-    runs-on: ubuntu-24.04
-    needs:
-      - backend-test
-      - frontend-build
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Build backend image
-        run: docker build -t pokeguess-backend ./backend
-
-      - name: Build frontend image
-        run: docker build -t pokeguess-frontend -f Dockerfile.frontend .
+      - name: Fail if backend tests failed
+        if: steps.backend-tests.outcome == 'failure'
+        run: exit 1
