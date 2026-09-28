@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import com.pokeguess.backend.dto.PokeApiSpeciesResponse;
 import com.pokeguess.backend.dto.PokeApiEvolutionChainResponse;
+import com.pokeguess.backend.dto.PokeApiPokemonListResponse;
 
 @Component
 public class PokeApiClient {
@@ -36,5 +37,15 @@ public class PokeApiClient {
                 .uri("/evolution-chain/{id}", id)
                 .retrieve()
                 .body(PokeApiEvolutionChainResponse.class);
+    }
+
+    public PokeApiPokemonListResponse getPokemonList() {
+        return restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/pokemon")
+                        .queryParam("limit", 1025)
+                        .build())
+                .retrieve()
+                .body(PokeApiPokemonListResponse.class);
     }
 }

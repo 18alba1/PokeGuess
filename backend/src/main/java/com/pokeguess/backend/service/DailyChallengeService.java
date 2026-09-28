@@ -3,18 +3,24 @@ package com.pokeguess.backend.service;
 import com.pokeguess.backend.entity.DailyChallenge;
 import com.pokeguess.backend.model.Pokemon;
 import com.pokeguess.backend.repository.DailyChallengeRepository;
-import org.springframework.stereotype.Service;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Service
 public class DailyChallengeService {
 
-    private static final LocalDate START_DATE = LocalDate.of(2026, 1, 1);
+    private static final LocalDate START_DATE =
+            LocalDate.of(2026, 1, 1);
+
     private static final int SUPPORTED_POKEMON_COUNT = 1025;
+
+    private static final ZoneId GAME_ZONE =
+            ZoneId.of("Europe/Stockholm");
 
     private final DailyChallengeRepository dailyChallengeRepository;
     private final PokemonService pokemonService;
@@ -29,7 +35,8 @@ public class DailyChallengeService {
 
     public Pokemon getTodaysPokemon() {
 
-        DailyChallenge challenge = getTodaysChallenge();
+        DailyChallenge challenge =
+                getTodaysChallenge();
 
         return pokemonService.getPokemon(
                 String.valueOf(challenge.getPokemonId())
@@ -39,17 +46,21 @@ public class DailyChallengeService {
     private int calculatePokemonId(LocalDate date) {
 
         long daysSinceStart =
-                ChronoUnit.DAYS.between(START_DATE, date);
+                ChronoUnit.DAYS.between(
+                        START_DATE,
+                        date
+                );
 
-        return (int) Math.floorMod(
-                daysSinceStart,
+        return Math.floorMod(
+                (int) daysSinceStart,
                 SUPPORTED_POKEMON_COUNT
         ) + 1;
     }
 
     public DailyChallenge getTodaysChallenge() {
 
-        LocalDate today = LocalDate.now();
+        LocalDate today =
+                LocalDate.now(GAME_ZONE);
 
         Optional<DailyChallenge> existingChallenge =
                 dailyChallengeRepository.findByDate(today);
@@ -58,20 +69,25 @@ public class DailyChallengeService {
             return existingChallenge.get();
         }
 
-        int pokemonId = calculatePokemonId(today);
+        int pokemonId =
+                calculatePokemonId(today);
 
-        DailyChallenge challenge = new DailyChallenge();
+        DailyChallenge challenge =
+                new DailyChallenge();
+
         challenge.setDate(today);
         challenge.setPokemonId(pokemonId);
 
         try {
             return dailyChallengeRepository.saveAndFlush(challenge);
         } catch (DataIntegrityViolationException e) {
-            return dailyChallengeRepository.findByDate(today)
+            return dailyChallengeRepository
+                    .findByDate(today)
                     .orElseThrow(() ->
                             new IllegalStateException(
                                     "Daily challenge could not be created."
-                            ));
+                            )
+                    );
         }
     }
 }

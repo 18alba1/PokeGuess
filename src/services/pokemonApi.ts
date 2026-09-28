@@ -1,8 +1,7 @@
 import type { PokemonListResponse, PokemonListEntry } from '../types/game';
+import { API_BASE_URL } from './config';
 
-const POKEMON_COUNT = 1025;
-
-const LIST_CACHE_KEY = 'pokeguess:pokemon-list';
+const LIST_CACHE_KEY = 'pokeguess:pokemon-list:v2';
 const LIST_CACHE_TIME = 1000 * 60 * 60 * 24;
 
 interface CachedList {
@@ -43,7 +42,7 @@ export async function fetchPokemonList(): Promise<PokemonListEntry[]> {
     return cached;
   }
 
-  const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${POKEMON_COUNT}`);
+  const res = await fetch(`${API_BASE_URL}/api/pokemon/list`);
   if (!res.ok) throw new Error('Failed to fetch Pokémon list');
   const data = (await res.json()) as PokemonListResponse;
   const list = data.results;

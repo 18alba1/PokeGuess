@@ -5,6 +5,7 @@ import com.pokeguess.backend.dto.PokeApiPokemonResponse;
 import com.pokeguess.backend.dto.PokeApiSpeciesResponse;
 import com.pokeguess.backend.model.Pokemon;
 import org.springframework.stereotype.Service;
+import com.pokeguess.backend.dto.PokeApiPokemonListResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,5 +58,9 @@ public class PokemonService {
         pokemon.setEvolutionChainId(evolutionChainId);
 
         return pokemon;
+    }
+
+    public PokeApiPokemonListResponse getPokemonList() {
+        return pokeApiClient.getPokemonList();
     }
 }
