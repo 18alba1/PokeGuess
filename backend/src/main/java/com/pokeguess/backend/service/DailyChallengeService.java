@@ -8,14 +8,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class DailyChallengeService {
-
-    private static final LocalDate START_DATE =
-            LocalDate.of(2026, 1, 1);
 
     private static final int SUPPORTED_POKEMON_COUNT = 1025;
 
@@ -35,32 +32,16 @@ public class DailyChallengeService {
 
     public Pokemon getTodaysPokemon() {
 
-        DailyChallenge challenge =
-                getTodaysChallenge();
+        DailyChallenge challenge = getTodaysChallenge();
 
         return pokemonService.getPokemon(
                 String.valueOf(challenge.getPokemonId())
         );
     }
 
-    private int calculatePokemonId(LocalDate date) {
-
-        long daysSinceStart =
-                ChronoUnit.DAYS.between(
-                        START_DATE,
-                        date
-                );
-
-        return Math.floorMod(
-                (int) daysSinceStart,
-                SUPPORTED_POKEMON_COUNT
-        ) + 1;
-    }
-
     public DailyChallenge getTodaysChallenge() {
 
-        LocalDate today =
-                LocalDate.now(GAME_ZONE);
+        LocalDate today = LocalDate.now(GAME_ZONE);
 
         Optional<DailyChallenge> existingChallenge =
                 dailyChallengeRepository.findByDate(today);
@@ -69,14 +50,14 @@ public class DailyChallengeService {
             return existingChallenge.get();
         }
 
-        int pokemonId =
-                calculatePokemonId(today);
+        int randomPokemonId =
+                ThreadLocalRandom.current()
+                        .nextInt(1, SUPPORTED_POKEMON_COUNT + 1);
 
-        DailyChallenge challenge =
-                new DailyChallenge();
+        DailyChallenge challenge = new DailyChallenge();
 
         challenge.setDate(today);
-        challenge.setPokemonId(pokemonId);
+        challenge.setPokemonId(randomPokemonId);
 
         try {
             return dailyChallengeRepository.saveAndFlush(challenge);
