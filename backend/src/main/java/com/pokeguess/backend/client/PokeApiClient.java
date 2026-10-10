@@ -6,11 +6,16 @@ import org.springframework.web.client.RestClient;
 import com.pokeguess.backend.dto.PokeApiSpeciesResponse;
 import com.pokeguess.backend.dto.PokeApiEvolutionChainResponse;
 import com.pokeguess.backend.dto.PokeApiPokemonListResponse;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class PokeApiClient {
 
     private final RestClient restClient;
+
+    private final ConcurrentMap<Integer, PokeApiEvolutionChainResponse>
+        evolutionChainCache = new ConcurrentHashMap<>();
 
     public PokeApiClient() {
         this.restClient = RestClient.builder()
@@ -33,10 +38,12 @@ public class PokeApiClient {
     }
 
     public PokeApiEvolutionChainResponse getEvolutionChain(int id) {
-        return restClient.get()
-                .uri("/evolution-chain/{id}", id)
-                .retrieve()
-                .body(PokeApiEvolutionChainResponse.class);
+        return evolutionChainCache.computeIfAbsent(id, chainId ->
+                restClient.get()
+                        .uri("/evolution-chain/{id}", chainId)
+                        .retrieve()
+                        .body(PokeApiEvolutionChainResponse.class)
+        );
     }
 
     public PokeApiPokemonListResponse getPokemonList() {

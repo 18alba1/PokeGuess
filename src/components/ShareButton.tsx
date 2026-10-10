@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { GameState } from '../types/game';
+import type { GameState, MatchStatus } from '../types/game';
 import { getShareIndex } from '../services/statisticsApi';
 import { matchStatusMeta } from '../utils/clueHelpers';
 
@@ -80,9 +80,12 @@ export function ShareButton({ gameState, won }: ShareButtonProps) {
   );
 }
 
-function statusToEmoji(status: 'MATCH' | 'CLOSE' | 'NO_MATCH'): string {
+function statusToEmoji(status: MatchStatus): string {
   const meta = matchStatusMeta(status);
+
   if (meta.color === 'green') return '🟩';
   if (meta.color === 'yellow') return '🟨';
+  if (meta.color === 'neutral') return '⬜';
+
   return '🟥';
 }

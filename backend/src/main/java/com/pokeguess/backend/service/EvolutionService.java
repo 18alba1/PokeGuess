@@ -18,19 +18,31 @@ public class EvolutionService {
 
     public Integer getEvolutionDistance(Pokemon first, Pokemon second) {
 
-        if (first.getEvolutionChainId() != second.getEvolutionChainId()) {
-            return null;
-        }
-
+    
         if (first.getName().equalsIgnoreCase(second.getName())) {
             return 0;
         }
 
+        if (first.getEvolutionChainId() <= 0
+                || second.getEvolutionChainId() <= 0) {
+            return null;
+        }
+
+        if (first.getEvolutionChainId()
+                != second.getEvolutionChainId()) {
+            return null;
+        }
+
         PokeApiEvolutionChainResponse response =
-                pokeApiClient.getEvolutionChain(first.getEvolutionChainId());
+                pokeApiClient.getEvolutionChain(
+                        first.getEvolutionChainId()
+                );
+
+        if (response == null || response.getChain() == null) {
+            return null;
+        }
 
         Map<String, Set<String>> graph = new HashMap<>();
-
         buildGraph(response.getChain(), graph);
 
         return findDistance(

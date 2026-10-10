@@ -7,6 +7,8 @@ import com.pokeguess.backend.model.Pokemon;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Service
@@ -19,65 +21,148 @@ public class ClueService {
     }
 
     public GuessResult compare(Pokemon target, Pokemon guess) {
-
         GuessResult result = new GuessResult();
 
         result.setPokemon(guess);
 
-        result.setType(compareTypes(target, guess));
+        // Compare Pokémon types.
+        result.setType(
+                compareTypes(
+                        target.getTypes(),
+                        guess.getTypes()
+                )
+        );
 
-        if (target.getGeneration().equalsIgnoreCase(guess.getGeneration())) {
-            result.setGeneration(MatchStatus.MATCH);
-        } else {
-            result.setGeneration(MatchStatus.NO_MATCH);
-        }
+        // Compare generation, handling missing values.
+        result.setGeneration(
+                compareKnownAttribute(
+                        target.getGeneration(),
+                        guess.getGeneration()
+                )
+        );
 
-        if (target.getHabitat().equalsIgnoreCase(guess.getHabitat())) {
-            result.setHabitat(MatchStatus.MATCH);
-        } else {
-            result.setHabitat(MatchStatus.NO_MATCH);
-        }
+        // Compare habitat, handling missing values.
+        result.setHabitat(
+                compareKnownAttribute(
+                        target.getHabitat(),
+                        guess.getHabitat()
+                )
+        );
 
+        // Compare physical attributes.
         result.setHeight(
-                compareNumber(target.getHeight(), guess.getHeight())
+                compareNumber(
+                        target.getHeight(),
+                        guess.getHeight()
+                )
         );
 
         result.setWeight(
-                compareNumber(target.getWeight(), guess.getWeight())
+                compareNumber(
+                        target.getWeight(),
+                        guess.getWeight()
+                )
         );
 
+        // Calculate evolution distance.
         Integer evolutionDistance =
-                evolutionService.getEvolutionDistance(target, guess);
+                evolutionService.getEvolutionDistance(
+                        target,
+                        guess
+                );
 
         result.setEvolutionDistance(evolutionDistance);
 
+        // Check whether the guess is correct.
         result.setCorrect(
-                target.getName().equalsIgnoreCase(guess.getName())
+                target.getName() != null
+                        && target.getName().equalsIgnoreCase(
+                                guess.getName()
+                        )
         );
 
         return result;
     }
 
-    private MatchStatus compareTypes(Pokemon target, Pokemon guess) {
+    private MatchStatus compareTypes(
+            List<String> targetTypeList,
+            List<String> guessTypeList) {
 
-        Set<String> targetTypes = new HashSet<>(target.getTypes());
-        Set<String> guessTypes = new HashSet<>(guess.getTypes());
+        Set<String> targetTypes =
+                normalizeTypes(targetTypeList);
 
-        Set<String> commonTypes = new HashSet<>(targetTypes);
+        Set<String> guessTypes =
+                normalizeTypes(guessTypeList);
+
+        // Missing type information should not be treated
+        // as an incorrect match.
+        if (targetTypes.isEmpty() || guessTypes.isEmpty()) {
+            return MatchStatus.UNKNOWN;
+        }
+
+        Set<String> commonTypes =
+                new HashSet<>(targetTypes);
+
         commonTypes.retainAll(guessTypes);
 
+        // All target types are present in the guess.
         if (commonTypes.containsAll(targetTypes)) {
             return MatchStatus.MATCH;
         }
 
+        // At least one type matches.
         if (!commonTypes.isEmpty()) {
             return MatchStatus.CLOSE;
+        }
+
+        // No types match.
+        return MatchStatus.NO_MATCH;
+    }
+
+    private Set<String> normalizeTypes(List<String> types) {
+        Set<String> normalizedTypes = new HashSet<>();
+
+        if (types == null) {
+            return normalizedTypes;
+        }
+
+        for (String type : types) {
+            if (type != null && !type.isBlank()) {
+                normalizedTypes.add(
+                        type.trim().toLowerCase(Locale.ROOT)
+                );
+            }
+        }
+
+        return normalizedTypes;
+    }
+
+    private MatchStatus compareKnownAttribute(
+            String targetValue,
+            String guessValue) {
+
+        // If either value is missing, the comparison
+        // cannot be made reliably.
+        if (!isKnown(targetValue) || !isKnown(guessValue)) {
+            return MatchStatus.UNKNOWN;
+        }
+
+        if (targetValue.equalsIgnoreCase(guessValue)) {
+            return MatchStatus.MATCH;
         }
 
         return MatchStatus.NO_MATCH;
     }
 
-    private Direction compareNumber(double target, double guess) {
+    private boolean isKnown(String value) {
+        return value != null
+                && !value.isBlank()
+                && !value.equalsIgnoreCase("unknown");
+    }
+
+    private Direction compareNumber(
+            double target,
+            double guess) {
 
         if (target > guess) {
             return Direction.UP;
