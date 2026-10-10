@@ -1,4 +1,8 @@
-import type { PokemonListResponse, PokemonListEntry } from '../types/game';
+import type {
+  Pokemon,
+  PokemonListResponse,
+  PokemonListEntry,
+} from '../types/game';
 import { API_BASE_URL } from './config';
 
 const LIST_CACHE_KEY = 'pokeguess:pokemon-list:v2';
@@ -16,6 +20,33 @@ export function getArtworkUrlById(id: number | string): string {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 }
 
+export async function fetchPokemonId(name: string): Promise<number> {
+  const response = await fetch(
+    `${API_BASE_URL}/pokemon/list`
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch Pokémon list');
+  }
+
+  const data = (await response.json()) as PokemonListResponse;
+  const pokemon = data.results.find(
+    (entry) => entry.name.toLowerCase() === name.toLowerCase()
+  );
+
+  if (!pokemon) {
+    throw new Error(`Pokémon not found: ${name}`);
+  }
+
+  const match = pokemon.url.match(/\/pokemon\/(\d+)\/?$/);
+
+  if (!match) {
+    throw new Error(`Could not determine Pokémon ID: ${name}`);
+  }
+
+  return Number(match[1]);
+}
+
 export function getSpriteUrlById(id: number | string): string {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 }
@@ -24,6 +55,22 @@ export function getArtworkUrl(name: string): string | null {
   const id = idMap.get(name.toLowerCase());
   if (id) return getArtworkUrlById(id);
   return null;
+}
+
+export async function fetchPokemonDetails(
+  name: string
+): Promise<Pokemon> {
+  const response = await fetch(
+    `${API_BASE_URL}/pokemon/${encodeURIComponent(name)}`
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch Pokémon details: ${name}`
+    );
+  }
+
+  return response.json() as Promise<Pokemon>;
 }
 
 export function getSpriteUrl(name: string): string | null {
@@ -42,7 +89,7 @@ export async function fetchPokemonList(): Promise<PokemonListEntry[]> {
     return cached;
   }
 
-  const res = await fetch(`${API_BASE_URL}/api/pokemon/list`);
+  const res = await fetch(`${API_BASE_URL}/pokemon/list`);
   if (!res.ok) throw new Error('Failed to fetch Pokémon list');
   const data = (await res.json()) as PokemonListResponse;
   const list = data.results;
@@ -79,6 +126,5 @@ function writeCache(data: PokemonListEntry[]) {
     const payload: CachedList = { timestamp: Date.now(), data };
     localStorage.setItem(LIST_CACHE_KEY, JSON.stringify(payload));
   } catch {
-    // ignore quota errors
   }
 }

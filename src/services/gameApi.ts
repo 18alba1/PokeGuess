@@ -18,7 +18,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
 }
 
 export async function startGame(): Promise<string> {
-  const res = await fetch(`${API_BASE_URL}/api/game/start`, {
+  const res = await fetch(`${API_BASE_URL}/game/start`, {
     method: 'POST',
     headers: { Accept: 'application/json' },
   });
@@ -34,7 +34,7 @@ export async function startGame(): Promise<string> {
 
 export async function getGameState(sessionId: string): Promise<GameState> {
   const res = await fetch(
-    `${API_BASE_URL}/api/game/state?sessionId=${encodeURIComponent(sessionId)}`,
+    `${API_BASE_URL}/game/state?sessionId=${encodeURIComponent(sessionId)}`,
     { headers: { Accept: 'application/json' } },
   );
   return handleResponse<GameState>(res);
@@ -42,7 +42,7 @@ export async function getGameState(sessionId: string): Promise<GameState> {
 
 export async function makeGuess(sessionId: string, name: string): Promise<GuessResult> {
   const res = await fetch(
-    `${API_BASE_URL}/api/game/guess?sessionId=${encodeURIComponent(sessionId)}&name=${encodeURIComponent(name)}`,
+    `${API_BASE_URL}/game/guess?sessionId=${encodeURIComponent(sessionId)}&name=${encodeURIComponent(name)}`,
     { method: 'POST', headers: { Accept: 'application/json' } },
   );
   return handleResponse<GuessResult>(res);

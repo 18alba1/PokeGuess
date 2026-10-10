@@ -25,7 +25,6 @@ public class ClueService {
 
         result.setPokemon(guess);
 
-        // Compare Pokémon types.
         result.setType(
                 compareTypes(
                         target.getTypes(),
@@ -33,7 +32,6 @@ public class ClueService {
                 )
         );
 
-        // Compare generation, handling missing values.
         result.setGeneration(
                 compareKnownAttribute(
                         target.getGeneration(),
@@ -41,7 +39,6 @@ public class ClueService {
                 )
         );
 
-        // Compare habitat, handling missing values.
         result.setHabitat(
                 compareKnownAttribute(
                         target.getHabitat(),
@@ -49,7 +46,6 @@ public class ClueService {
                 )
         );
 
-        // Compare physical attributes.
         result.setHeight(
                 compareNumber(
                         target.getHeight(),
@@ -64,7 +60,20 @@ public class ClueService {
                 )
         );
 
-        // Calculate evolution distance.
+        result.setHeightStatus(
+                compareNumberStatus(
+                        target.getHeight(),
+                        guess.getHeight()
+                )
+        );
+
+        result.setWeightStatus(
+                compareNumberStatus(
+                        target.getWeight(),
+                        guess.getWeight()
+                )
+        );
+
         Integer evolutionDistance =
                 evolutionService.getEvolutionDistance(
                         target,
@@ -73,7 +82,6 @@ public class ClueService {
 
         result.setEvolutionDistance(evolutionDistance);
 
-        // Check whether the guess is correct.
         result.setCorrect(
                 target.getName() != null
                         && target.getName().equalsIgnoreCase(
@@ -94,8 +102,6 @@ public class ClueService {
         Set<String> guessTypes =
                 normalizeTypes(guessTypeList);
 
-        // Missing type information should not be treated
-        // as an incorrect match.
         if (targetTypes.isEmpty() || guessTypes.isEmpty()) {
             return MatchStatus.UNKNOWN;
         }
@@ -105,17 +111,14 @@ public class ClueService {
 
         commonTypes.retainAll(guessTypes);
 
-        // All target types are present in the guess.
         if (commonTypes.containsAll(targetTypes)) {
             return MatchStatus.MATCH;
         }
 
-        // At least one type matches.
         if (!commonTypes.isEmpty()) {
             return MatchStatus.CLOSE;
         }
 
-        // No types match.
         return MatchStatus.NO_MATCH;
     }
 
@@ -141,8 +144,7 @@ public class ClueService {
             String targetValue,
             String guessValue) {
 
-        // If either value is missing, the comparison
-        // cannot be made reliably.
+
         if (!isKnown(targetValue) || !isKnown(guessValue)) {
             return MatchStatus.UNKNOWN;
         }
@@ -173,5 +175,27 @@ public class ClueService {
         }
 
         return Direction.MATCH;
+    }
+
+    private MatchStatus compareNumberStatus(
+        double target,
+        double guess) {
+
+        if (Double.compare(target, guess) == 0) {
+            return MatchStatus.MATCH;
+        }
+
+        if (target <= 0 || guess <= 0) {
+            return MatchStatus.UNKNOWN;
+        }
+
+        double difference =
+                Math.abs(target - guess) / Math.abs(target);
+
+        if (difference <= 0.20) {
+            return MatchStatus.CLOSE;
+        }
+
+        return MatchStatus.NO_MATCH;
     }
 }

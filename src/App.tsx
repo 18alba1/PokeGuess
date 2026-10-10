@@ -24,7 +24,6 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [stats, setStats] = useState<GameStats>(() => loadStats());
 
-  // Record result when game ends
   useEffect(() => {
     if (!gameState || !gameState.gameOver) return;
     const updated = recordGameResult(gameState.won, gameState.attempts);
@@ -40,7 +39,6 @@ export default function App() {
   const isLoading = status === 'idle' || status === 'loading';
   const gameOver = gameState?.gameOver ?? false;
 
-  // Show how-to-play on first visit
   useEffect(() => {
     const seen = localStorage.getItem('pokeguess:seen-howto');
     if (!seen) {

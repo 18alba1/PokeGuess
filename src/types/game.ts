@@ -1,4 +1,8 @@
-export type MatchStatus = 'MATCH' | 'CLOSE' | 'NO_MATCH';
+export type MatchStatus =
+  | 'MATCH'
+  | 'CLOSE'
+  | 'NO_MATCH'
+  | 'UNKNOWN';
 
 export type Direction = 'MATCH' | 'UP' | 'DOWN';
 
@@ -19,6 +23,8 @@ export interface GuessResult {
   habitat: MatchStatus;
   height: Direction;
   weight: Direction;
+  heightStatus: MatchStatus;
+  weightStatus: MatchStatus;
   evolutionDistance: number | null;
   correct: boolean;
 }

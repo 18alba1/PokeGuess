@@ -11,6 +11,8 @@ public class GuessResult {
 
     private Direction height;
     private Direction weight;
+    private MatchStatus heightStatus;
+    private MatchStatus weightStatus;
     
     private boolean correct;
 
@@ -76,5 +78,21 @@ public class GuessResult {
 
     public void setEvolutionDistance(Integer evolutionDistance) {
         this.evolutionDistance = evolutionDistance;
+    }
+
+    public MatchStatus getHeightStatus() {
+    return heightStatus;
+}
+
+    public void setHeightStatus(MatchStatus heightStatus) {
+        this.heightStatus = heightStatus;
+    }
+
+    public MatchStatus getWeightStatus() {
+        return weightStatus;
+    }
+
+    public void setWeightStatus(MatchStatus weightStatus) {
+        this.weightStatus = weightStatus;
     }
 }

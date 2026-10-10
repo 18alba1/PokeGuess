@@ -56,8 +56,8 @@ export function GuessRow({ guess, isLatest }: GuessRowProps) {
         <ClueCell meta={matchStatusMeta(guess.type)} value={pokemon.types.map(formatType).join(', ')} delay={baseDelay + 100} />
         <ClueCell meta={matchStatusMeta(guess.generation)} value={formatGeneration(pokemon.generation)} delay={baseDelay + 200} />
         <ClueCell meta={matchStatusMeta(guess.habitat)} value={formatHabitat(pokemon.habitat)} delay={baseDelay + 300} />
-        <DirectionCell meta={directionMeta(guess.height)} value={formatHeight(pokemon.height)} delay={baseDelay + 400} />
-        <DirectionCell meta={directionMeta(guess.weight)} value={formatWeight(pokemon.weight)} delay={baseDelay + 500} />
+        <DirectionCell meta={directionMeta(guess.height, guess.heightStatus)} value={formatHeight(pokemon.height)} delay={baseDelay + 400} />
+        <DirectionCell meta={directionMeta(guess.weight, guess.weightStatus)} value={formatWeight(pokemon.weight)} delay={baseDelay + 500} />
         <ClueCell meta={evolutionMeta(guess.evolutionDistance)} delay={baseDelay + 600} />
       </div>
 
@@ -94,8 +94,8 @@ export function GuessRow({ guess, isLatest }: GuessRowProps) {
             <MobileClue label="Gen" meta={matchStatusMeta(guess.generation)} subValue={formatGeneration(pokemon.generation)} delay={baseDelay + 200} />
             <MobileClue label="Habitat" meta={matchStatusMeta(guess.habitat)} subValue={formatHabitat(pokemon.habitat)} delay={baseDelay + 300} />
             <MobileClue label="Evolution" meta={evolutionMeta(guess.evolutionDistance)} delay={baseDelay + 400} />
-            <MobileDirection label="Height" meta={directionMeta(guess.height)} value={formatHeight(pokemon.height)} delay={baseDelay + 500} />
-            <MobileDirection label="Weight" meta={directionMeta(guess.weight)} value={formatWeight(pokemon.weight)} delay={baseDelay + 600} />
+            <MobileDirection label="Height" meta={directionMeta(guess.height, guess.heightStatus)} value={formatHeight(pokemon.height)} delay={baseDelay + 500} />
+            <MobileDirection label="Weight" meta={directionMeta(guess.weight, guess.weightStatus)} value={formatWeight(pokemon.weight)} delay={baseDelay + 600} />
           </div>
         </div>
       </div>
