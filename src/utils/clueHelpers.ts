@@ -101,10 +101,14 @@ export function formatWeight(weight: number): string {
 }
 
 export function formatGeneration(gen: string): string {
-  const match = gen.match(/generation-([iv]+)/i);
+  const match = gen.match(
+    /^generation-(i|ii|iii|iv|v|vi|vii|viii|ix)$/i
+  );
+
   if (match) {
     return `Gen ${match[1].toUpperCase()}`;
   }
+
   return gen;
 }
 
